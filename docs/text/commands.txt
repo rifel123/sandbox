@@ -1,0 +1,252 @@
+Command Line Interface
+**********************
+
+When **GPKI** is installed, it adds "gpki" command to command line.
+
+**GPKI** commands:
+
+* decrypt          -- Decrypt message or file content
+
+* encrypt          -- Encrypt message or file content
+
+* export           -- Exports selected keys into file or GPG public
+  key block
+
+* identity         -- Create new identity
+
+* import           -- Import public keys from file or GPG public key
+  block
+
+* recipients       -- List all available recipients
+
+* review           -- Accept or reject new identities
+
+* revoke           -- Revoke specified identity
+
+* signatories      -- List all available signatories
+
+* update           -- Source all public keys from repository
+
+* version          -- Show version
+
+
+decrypt
+=======
+
+**Usage:**
+
+   gpki decrypt [-o|--output <target_file>] [-i|--input <input_file>] [-u|--update]
+
+Decrypts message or file content into console or specified output
+file. If input file is not specified, user is asked to paste GPG
+message block into console. If output file is not provided, decrypted
+message is printed out to the console. It may happen that the message
+is signed with revoked key. In such a case, to make sure "gpki"
+operates on latest data from repository, it's adviced to pass
+"-u/--update" flag.
+
+Note: both input and output path are relative by default, but there is
+possibility to pass absolute path.
+
+**Options:**
+
+-o, --output
+
+Specify target output file where decrypted message is written to.
+
+-i, --input
+
+Specify source file, which content will be decrypted (must have GPG
+message block inside)
+
+-u, --update
+
+updates GPG keyring with keys from the repository and removes revoked
+keys
+
+
+encrypt
+=======
+
+**Usage:**
+
+   gpki encrypt [-o|--output <target_file>] [-i|--input <source_file>] [-a|--all]
+
+Encrypts message or file content into GPG message block or into output
+file. If input file is not specified, user is asked to write message
+in console. If output file is not provided, encrypted message block is
+printed out to the console. Message recipients are interactively
+selected by user or all of them are selected if "-a/--all" flag is
+set.
+
+Note: both input and output path are relative by default, but there is
+possibility to pass absolute path.
+
+**Options:**
+
+-o, --output
+
+Specify target output file where encrypted message is written to.
+
+-i, --input
+
+Specify source file, which content will be encrypted.
+
+-a, --all
+
+Selects all available recipients.
+
+
+export
+======
+
+**Usage:**
+
+   gpki export <key_name_1 ... key_name_N> [-o|--output <target_file_path>]
+
+Exports selected public keys into file or GPG public key block. The
+exported public key block is printed to console even if output file is
+specified.
+
+Note: output target files is created in current working directory by
+default. Provide relative or absolute path to target file if necessary
+(may require privilege to create path).
+
+**Options:**
+
+-o, --output
+
+Specifies the output target file where selected keys are exported to.
+
+
+identity
+========
+
+**Usage:**
+
+   gpki identity <name> [--email] [--description]
+
+Creates new identity <name> for the user. Adds new private/public key
+pair into GPG keyring and pushes public key into git repository for
+Certificate Authority for a review under branch <name>/<fingerprint>.
+If user already has identity called <name>, user is asked whether the
+previous public key needs to be revoked.
+
+If optional "--email" or "--description" is provided, then those
+fields will be printed out when selecting recipients or signatory.
+
+**Options:**
+
+--email
+
+Specifies email address associated with given identity
+
+--description
+
+Short description of identity, egz. purpose
+
+
+import
+======
+
+**Usage:**
+
+   gpki import [-i|--input <file1 ... fileN>]
+
+Imports all public keys from GPG public key block or file(s), so later
+on those keys are available to use as recipients. If input files are
+not specified, user is asked to paste the GPG public key block. If at
+least one key from block/file is not imported successfully, then all
+keys from given block/file are treated as corrupted, and not added to
+GPG keyring. Prints import summary report divided into three sections:
+Succeeded, Unchanged and Failed imports.
+
+Note: provided files will be found only if they are placed in current
+working directory. If there is need to add files from different
+location, then relative path to the file must be specified.
+
+**Options:**
+
+-i, --input
+
+Specifies the file or files from which keys are going to be imported
+
+
+recipients
+==========
+
+**Usage:**
+
+   gpki recipients
+
+Lists all available recipients. Note: use "update" command to source
+all recipients from the git repository.
+
+
+review
+======
+
+**Usage:**
+
+   gpki review
+
+"review" command is reserved for the Certificate Authority or someone
+empowered to make changes in master/main branch. At the beginning
+"review" command will merge all revoke requests into master. Later the
+command looks for unmerged new identities or import requests and lists
+them to the user. Certificate Authority can now decide which request
+to handle and make decision if requests should be merged to
+master/main branch or reject it. If requests gets rejected, then its
+branch is automatically removed from repository.
+
+
+revoke
+======
+
+**Usage:**
+
+   gpki revoke
+
+Lists all available signatories and lets the user choose which one to
+revoke. Once signatory is selected, pull request with revocation file
+is issued. After revocation of key, other users won't be able to
+decrypt messages signed with revoked key, which is useful when it is
+know the key was compromised.
+
+
+signatories
+===========
+
+**Usage:**
+
+   gpki signatories
+
+Lists all available signatories, all identities which private keys
+associated with are found in keyring.
+
+
+update
+======
+
+**Usage:**
+
+   gpki update
+
+Fetches the git repository in order to load all available public keys
+and also remove revoked keys from keyring.
+
+**Options:**
+
+--keep-rejected-keys
+
+revoked public keys will not be removed from keyring
+
+
+version
+=======
+
+**Usage:**
+
+   gpki --version
+
+Shows program version and exists.

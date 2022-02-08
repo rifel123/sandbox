@@ -1,0 +1,8 @@
+version
+*******
+
+**Usage:**
+
+   gpki --version
+
+Shows program version and exists.
